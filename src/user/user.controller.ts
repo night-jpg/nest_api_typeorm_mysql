@@ -21,7 +21,7 @@ export class UserController {
     }
 
     @Put(':id')
-    async updade(@Body() {email, name, password} : UpdatePutUserDTO, @Param('id', ParseIntPipe) id : number){
+    async update(@Body() {email, name, password} : UpdatePutUserDTO, @Param('id', ParseIntPipe) id : number){
         return {
             method: 'put',
             email, name, password, 
