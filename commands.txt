@@ -4,3 +4,8 @@ npm i class-validator class-transformer
 ###
 npm i @nestjs/mapped-types
 ###
+npm i -D prisma
+###
+Sem banco de dados: npx prisma init
+                    npx prisma db pull
+                    npx prisma generate
