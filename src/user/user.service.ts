@@ -7,11 +7,11 @@ import { UpdatePatchUser } from "./dto/update-patch-user.dto";
 @Injectable()
 export class UserService {
 
-    constructor(private readonly prisma: PrismaService){}
+    constructor(private readonly prisma: PrismaService) { }
 
-    async create({email, name, password} : CreateUserDTO) {
+    async create({ email, name, password }: CreateUserDTO) {
         return await this.prisma.user.create({
-            data:{
+            data: {
                 email,
                 name,
                 password
@@ -19,11 +19,12 @@ export class UserService {
         });
     }
 
-    async list(){
+    async list() {
         return this.prisma.user.findMany();
     }
 
-    async show(idusers : number){
+    async show(idusers: number) {
+        await this.exists(idusers);
         return this.prisma.user.findUnique({
             where: {
                 idusers,
@@ -31,20 +32,20 @@ export class UserService {
         });
     }
 
-    async update(idusers: number, {email, name, password, birthDay}: UpdatePutUserDTO){
+    async update(idusers: number, { email, name, password, birthDay }: UpdatePutUserDTO) {
 
         await this.exists(idusers);
 
         return this.prisma.user.update({
-            data: {email, name, password,birthDay: birthDay ? new Date(birthDay) : null,updatedAt: new Date()},
+            data: { email, name, password, birthDay: birthDay ? new Date(birthDay) : null },
             where: {
                 idusers
             }
         })
     }
 
-    async patch(idusers: number, {email, name, password, birthDay}: UpdatePatchUser){
-        
+    async patch(idusers: number, { email, name, password, birthDay }: UpdatePatchUser) {
+
         await this.exists(idusers);
 
         const data: any = {};
@@ -53,7 +54,7 @@ export class UserService {
         name && (data.name = name);
         password && (data.password = password);
         birthDay && (data.birthDay = new Date(birthDay));
-        
+
         return this.prisma.user.update({
             data: data,
             where: {
@@ -62,10 +63,10 @@ export class UserService {
         })
     }
 
-    async delete(idusers:number){
+    async delete(idusers: number) {
 
         await this.exists(idusers);
-        
+
         return this.prisma.user.delete({
             where: {
                 idusers
@@ -73,9 +74,13 @@ export class UserService {
         })
     }
 
-    async exists(idusers: number){
-        if(!(await this.show(idusers))){
-            throw new NotFoundException("O usuário com esse id não");
+    async exists(idusers: number) {
+        if (!(await this.prisma.user.count({
+            where: {
+                idusers
+            }
+        }))) {
+            throw new NotFoundException("O usuário com esse id não existe");
         }
     }
 }
