@@ -1,18 +1,28 @@
-import {Controller, Post, Body, Get, Param, Put, Patch, Delete, ParseIntPipe, UseInterceptors} from "@nestjs/common"
+import {Controller, Post, Body, Get, Param, Put, Patch, Delete, ParseIntPipe, UseInterceptors, UseGuards} from "@nestjs/common"
 import { CreateUserDTO } from "./dto/create.user.dto";
 import { UpdatePutUserDTO } from "./dto/update-put-user.dto";
 import { UpdatePatchUser } from "./dto/update-patch-user.dto";
 import { UserService } from "./user.service";
 import { LogInterceptor } from "src/interceptors/log.interceptor";
 import { ParamId } from "src/decorators/param-id.decorator";
+import {Roles} from "src/decorators/role.decorator";
+import { Role } from "src/enums/role.enum";
+import { RoleGuard } from "src/guards/rule.guard";
+import { AuthGuard } from "src/guards/auth.guard";
+import { SkipThrottle, Throttle } from "@nestjs/throttler";
 
-//@UseInterceptors(LogInterceptor)
+@UseGuards(AuthGuard,RoleGuard)
+@UseInterceptors(LogInterceptor)
 @Controller('users')
+@Roles(Role.Admin)
 export class UserController {
 
     constructor(private readonly userService: UserService){}
 
-    @UseInterceptors(LogInterceptor)
+    //@UseInterceptors(LogInterceptor)
+    
+    //@Throttle()
+    //@SkipThrottle()
     @Post()
     async create(@Body() data : CreateUserDTO){
         return this.userService.create(data);
@@ -29,7 +39,7 @@ export class UserController {
     }
 
     @Put(':id')
-    async update(@Body() data : UpdatePutUserDTO, @ParamId() idusers : number){
+    async update(@Body() data : UpdatePutUserDTO, @ParamId() idusers : number){ 
         return this.userService.update(idusers,data);
     }
 

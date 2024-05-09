@@ -10,4 +10,7 @@ Sem banco de dados: npx prisma init
                     npx prisma db pull
                     npx prisma generate
                     npx prisma migrate dev --name birthDay?
+                    npm i bcrypt
+                    npm i @nestjs/throttler
+
                     

@@ -1,19 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthRegisterDTO } from './dto/auth.register.dto';
 import { UserService } from 'src/user/user.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+
+    private issuer : string = 'login';
+    private audience : string = 'users';
+
     constructor(
         private readonly jwtService: JwtService,
         private readonly prisma: PrismaService,
         private readonly userService: UserService
     ) { }
 
-    async createToken(user: User) {
+    createToken(user: User) {
         return {
             accessToken: this.jwtService.sign({
                 id: user.idusers,
@@ -22,26 +27,46 @@ export class AuthService {
             }, {
                 expiresIn: '7 days',
                 subject: String(user.idusers),
-                issuer: 'login',
-                audience: 'users'
+                issuer: this.issuer,
+                audience: this.audience
             })
         };
     }
 
-    async checkToken(token: string) {
-        //return this.jwtService.verify();
+    checkToken(token: string) {
+        try {
+            const data = this.jwtService.verify(token, {
+                audience: this.audience,
+                issuer: this.issuer,
+            });
+            return data;
+        } catch (e) {
+            throw new BadRequestException(e);
+        }
+    }
+
+    isValidToken(token: string) {
+        try {
+            this.checkToken(token);
+        } catch (e) {
+            return false;
+        }
+
     }
 
     async login(email: string, password: string) {
         const user = await this.prisma.user.findFirst({
             where: {
-                email,
-                password
+                email,              
             }
         })
 
         if (!user) {
-            throw new UnauthorizedException("Email ou senha incorretos");
+            throw new BadRequestException("Email não cadastrado");
+        }
+
+        if ((!await bcrypt.compare(password, user.password))){
+            throw new UnauthorizedException("Senha Incorreta");
         }
 
         return this.createToken(user);
