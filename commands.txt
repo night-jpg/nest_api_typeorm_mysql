@@ -12,5 +12,6 @@ Sem banco de dados: npx prisma init
                     npx prisma migrate dev --name birthDay?
                     npm i bcrypt
                     npm i @nestjs/throttler
+                    Nest Modules Mailer
 
                     
