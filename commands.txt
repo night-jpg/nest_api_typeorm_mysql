@@ -13,5 +13,8 @@ Sem banco de dados: npx prisma init
                     npm i bcrypt
                     npm i @nestjs/throttler
                     Nest Modules Mailer
+                    ------------------
+                    npm i typeorm mysql2 @nestjs/typeorm
+                    npm i dotenv -D
 
                     

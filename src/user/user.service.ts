@@ -1,34 +1,42 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { CreateUserDTO } from "./dto/create.user.dto";
-import { PrismaService } from "src/prisma/prisma.service";
 import { UpdatePutUserDTO } from "./dto/update-put-user.dto";
 import { UpdatePatchUser } from "./dto/update-patch-user.dto";
 import * as bcrypt from 'bcrypt';
+import { Repository } from "typeorm";
+import { UserEntity } from "./entity/user.entity";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class UserService {
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        @InjectRepository(UserEntity)
+        private usersRepository: Repository<UserEntity>
+    ) { }
 
     async create(data: CreateUserDTO) {
 
+        if (await this.usersRepository.exists({
+            where: {
+                email: data.email
+            }
+        })) {
+            throw new BadRequestException("O email já está sendo usado");
+        }
         data.password = await bcrypt.hash(data.password, await bcrypt.genSalt());
-
-        return await this.prisma.user.create({
-            data
-        });
+        const user = this.usersRepository.create(data)
+        return this.usersRepository.save(user)
     }
 
     async list() {
-        return this.prisma.user.findMany();
+        return this.usersRepository.find();
     }
 
     async show(idusers: number) {
         await this.exists(idusers);
-        return this.prisma.user.findUnique({
-            where: {
-                idusers,
-            }
+        return this.usersRepository.findOneBy({
+            idusers,
         });
     }
 
@@ -38,14 +46,16 @@ export class UserService {
 
         password = await bcrypt.hash(password, await bcrypt.genSalt());
 
-        console.log(typeof(role));
+        await this.usersRepository.update(idusers, {
+            email,
+            name,
+            password,
+            birthDay: birthDay ? new Date(birthDay) : null,
+            role
+        },
+        )
 
-        return this.prisma.user.update({
-            data: { email, name, password, birthDay: birthDay ? new Date(birthDay) : null , role},
-            where: {
-                idusers
-            }
-        })
+        return this.show(idusers);
     }
 
     async patch(idusers: number, { email, name, password, birthDay, role }: UpdatePatchUser) {
@@ -60,27 +70,26 @@ export class UserService {
         birthDay && (data.birthDay = new Date(birthDay));
         role && (data.role = role);
 
-        return this.prisma.user.update({
-            data: data,
-            where: {
-                idusers
-            }
-        })
+        await this.usersRepository.update(idusers, data)
+
+        return this.show(idusers);
     }
 
     async delete(idusers: number) {
 
-        await this.exists(idusers);
+        await this.exists(idusers)
 
-        return this.prisma.user.delete({
-            where: {
-                idusers
-            }
-        })
+        const user = await this.show(idusers)
+
+        await this.usersRepository.delete(idusers)
+
+        return user
+
     }
 
     async exists(idusers: number) {
-        if (!(await this.prisma.user.count({
+
+        if (!(await this.usersRepository.exists({
             where: {
                 idusers
             }

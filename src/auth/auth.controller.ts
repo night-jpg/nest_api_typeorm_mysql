@@ -6,10 +6,10 @@ import { AuthService } from './auth.service';
 import { AuthForgetDto } from './dto/auth.forget.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { User } from 'src/decorators/user.decorator';
-import { User as PrismaUser } from '@prisma/client';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
 import { FileService } from 'src/file/file.service';
+import { UserEntity } from 'src/user/entity/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -41,14 +41,14 @@ export class AuthController {
 
     @UseGuards(AuthGuard)
     @Post('me')
-    async me(@User() user: PrismaUser) {
+    async me(@User() user: UserEntity) {
         return { user };
     }
 
     @UseInterceptors(FileInterceptor('file'))
     @UseGuards(AuthGuard)
     @Post('photo')
-    async uploadPhoto(@User() user: PrismaUser, @UploadedFile(new ParseFilePipe({
+    async uploadPhoto(@User() user: UserEntity, @UploadedFile(new ParseFilePipe({
         validators: [
             new FileTypeValidator({ fileType: 'image/jpeg' }),
             new MaxFileSizeValidator({maxSize: 1024 * 100})
@@ -66,14 +66,14 @@ export class AuthController {
     @UseInterceptors(FilesInterceptor('files'))
     @UseGuards(AuthGuard)
     @Post('files')
-    async uploadFiles(@User() user: PrismaUser, @UploadedFiles() files: Express.Multer.File[]) {
+    async uploadFiles(@User() user: UserEntity, @UploadedFiles() files: Express.Multer.File[]) {
 
     }
 
     @UseInterceptors(FileFieldsInterceptor([{ name: 'photo', maxCount: 1 }, { name: 'documents', maxCount: 10 }]))
     @UseGuards(AuthGuard)
     @Post('files-fields')
-    async uploadFilesFields(@User() user: PrismaUser, @UploadedFiles() files: { photo: Express.Multer.File, documents: Express.Multer.File[] }) {
+    async uploadFilesFields(@User() user: UserEntity, @UploadedFiles() files: { photo: Express.Multer.File, documents: Express.Multer.File[] }) {
         return { files }
     }
 }
