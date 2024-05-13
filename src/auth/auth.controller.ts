@@ -1,15 +1,15 @@
-import { Controller, Post, Body, UseGuards, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, BadRequestException, FileTypeValidator, MaxFileSizeValidator } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, BadRequestException, FileTypeValidator, MaxFileSizeValidator } from '@nestjs/common';
 import { AuthLoginDTO } from './dto/auth.login.dto';
 import { AuthRegisterDTO } from './dto/auth.register.dto';
 import { AuthResetDto } from './dto/auth.reset.dto';
 import { AuthService } from './auth.service';
 import { AuthForgetDto } from './dto/auth.forget.dto';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { User } from 'src/decorators/user.decorator';
+import { AuthGuard } from '../guards/auth.guard';
+import { User } from '../decorators/user.decorator';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
-import { FileService } from 'src/file/file.service';
-import { UserEntity } from 'src/user/entity/user.entity';
+import { FileService } from '../file/file.service';
+import { UserEntity } from '../user/entity/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -41,8 +41,8 @@ export class AuthController {
 
     @UseGuards(AuthGuard)
     @Post('me')
-    async me(@User() user: UserEntity) {
-        return { user };
+    async me(@User() user: UserEntity, @Req(){tokenPayload}) {
+        return { user, tokenPayload};
     }
 
     @UseInterceptors(FileInterceptor('file'))

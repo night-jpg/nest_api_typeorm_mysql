@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt';
 import { AuthRegisterDTO } from './dto/auth.register.dto';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/user/entity/user.entity';
+import { UserEntity } from '../user/entity/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -53,6 +53,7 @@ export class AuthService {
     isValidToken(token: string) {
         try {
             this.checkToken(token);
+            return true
         } catch (e) {
             return false;
         }
@@ -91,7 +92,7 @@ export class AuthService {
             audience: 'users'
         }
         )
-
+        
         await this.mailer.sendMail({
             subject: "Recuperação de Senha",
             to: "ppma.txt@gmail.com",
@@ -132,6 +133,7 @@ export class AuthService {
     }
 
     async register(data: AuthRegisterDTO) {
+        delete data.role
         const user = await this.userService.create(data);
         return this.createToken(user);
     }

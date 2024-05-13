@@ -25,16 +25,21 @@ export class UserService {
             throw new BadRequestException("O email já está sendo usado");
         }
         data.password = await bcrypt.hash(data.password, await bcrypt.genSalt());
+
         const user = this.usersRepository.create(data)
+
         return this.usersRepository.save(user)
     }
 
     async list() {
+        
         return this.usersRepository.find();
+
     }
 
     async show(idusers: number) {
         await this.exists(idusers);
+        
         return this.usersRepository.findOneBy({
             idusers,
         });
