@@ -1,7 +1,9 @@
 const dotenv = require('dotenv');
 const { DataSource } = require('typeorm');
 
-dotenv.config();
+dotenv.config({
+    path: process.env.ENV === 'test' ? '.env.test' : '.env'
+});
 
 const dataSourceOptions = {
     type: 'mysql',

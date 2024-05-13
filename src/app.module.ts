@@ -15,20 +15,24 @@ import { UserEntity } from './user/entity/user.entity';
   imports: [
     forwardRef(() => UserModule),
     forwardRef(() => AuthModule),
-    ConfigModule.forRoot(),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-      ignoreUserAgents: [/googlebot/gi]
-    }]),
+    ConfigModule.forRoot({
+      envFilePath: process.env.ENV == 'test' ? '.env.test' : '.env',
+    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+        ignoreUserAgents: [/googlebot/gi],
+      },
+    ]),
     MailerModule.forRoot({
       transport: {
         host: 'smtp.ethereal.email',
         port: 587,
         auth: {
           user: 'janice14@ethereal.email',
-          pass: 'GcrYnWrXxn4dnxKwzh'
-        }
+          pass: 'GcrYnWrXxn4dnxKwzh',
+        },
       },
       defaults: {
         from: '"nest-modules" <modules@nestjs.com>',
@@ -49,14 +53,17 @@ import { UserEntity } from './user/entity/user.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [UserEntity],
-      synchronize: process.env.ENV === "development",
-    })
+      synchronize: process.env.ENV === 'development',
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_GUARD,
-    useClass: ThrottlerGuard
-  }],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

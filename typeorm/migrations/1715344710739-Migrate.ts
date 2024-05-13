@@ -5,7 +5,7 @@ class Migrate1715344710739 {
         await queryRunner.createTable(new Table({
             name: 'users',
             columns: [{
-                    name: 'id',
+                    name: 'idusers',
                     type: 'int',
                     isPrimary: true,
                     isGenerated: true,

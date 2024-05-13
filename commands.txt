@@ -16,5 +16,7 @@ Sem banco de dados: npx prisma init
                     ------------------
                     npm i typeorm mysql2 @nestjs/typeorm
                     npm i dotenv -D
+                    npm i cross-env -D
+                    npm run lint
 
                     
