@@ -6,7 +6,6 @@ import { userServiceMock } from "../testing/user-service.mock"
 import { mailerServiceMock } from "../testing/mailer-service.mock"
 import { userEntityList } from "../testing/user-entity-list.mock"
 import { accessToken } from "../testing/accessToken.mock"
-import { Console } from "console"
 import { jwtPayload } from "../testing/jwt-payload.mock"
 import { resetToken } from "../testing/reset-token.mock"
 import { authRegisterDTO } from "../testing/auth-register-dto.mock"
@@ -40,7 +39,7 @@ describe('AuthService', () => {
         })
         test('forget method', async () => {
             const result = await authService.forget('ppma@gmail.com');
-            expect(result).toEqual(true);
+            expect(result).toEqual({success: true});
         })
         test('reset method', async () => {
             const result = await authService.reset('Pedro@123', resetToken);

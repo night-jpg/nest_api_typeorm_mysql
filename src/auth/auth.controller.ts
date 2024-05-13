@@ -7,7 +7,6 @@ import { AuthForgetDto } from './dto/auth.forget.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../decorators/user.decorator';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { join } from 'path';
 import { FileService } from '../file/file.service';
 import { UserEntity } from '../user/entity/user.entity';
 
@@ -41,8 +40,8 @@ export class AuthController {
 
     @UseGuards(AuthGuard)
     @Post('me')
-    async me(@User() user: UserEntity, @Req(){tokenPayload}) {
-        return { user, tokenPayload};
+    async me(@User() user: UserEntity) {
+        return user;
     }
 
     @UseInterceptors(FileInterceptor('file'))
@@ -60,7 +59,7 @@ export class AuthController {
         } catch (e) {
             throw new BadRequestException(e)
         }
-        return { success: true };
+        return photo;
     }
 
     @UseInterceptors(FilesInterceptor('files'))
