@@ -54,9 +54,9 @@ export class AuthController {
             new MaxFileSizeValidator({maxSize: 1024 * 100})
         ]
     })) photo: Express.Multer.File) {
-        const path = join(__dirname, '..', '..', 'storage', 'photos', `photo-${user.idusers}.png`);
+        const filename = `photo-${user.idusers}.png`;
         try {
-            await this.FileService.upload(photo, path);
+            await this.FileService.upload(photo, filename);
         } catch (e) {
             throw new BadRequestException(e)
         }
